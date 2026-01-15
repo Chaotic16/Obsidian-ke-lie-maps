@@ -1,0 +1,219 @@
+{
+  "version": 8,
+  "sources": {
+    "ne2_shaded": {
+      "maxzoom": 6,
+      "tileSize": 256,
+      "tiles": [
+        "https://tiles.openfreemap.org/natural_earth/ne2sr/{z}/{x}/{y}.png"
+      ],
+      "type": "raster"
+    },
+    "openmaptiles": {
+      "type": "vector",
+      "url": "https://tiles.openfreemap.org/planet"
+    }
+  },
+  "sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
+  "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
+
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": { "background-color": "#f7f5f2" }
+    },
+
+    {
+      "id": "terrain",
+      "type": "raster",
+      "source": "ne2_shaded",
+      "maxzoom": 7,
+      "paint": {
+        "raster-opacity": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          0, 0.55,
+          6, 0.18
+        ]
+      }
+    },
+
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "water",
+      "filter": ["!=", ["get", "brunnel"], "tunnel"],
+      "paint": { "fill-color": "rgb(160,190,255)" }
+    },
+
+    {
+      "id": "waterway_river",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "waterway",
+      "minzoom": 4,
+      "filter": [
+        "all",
+        ["==", ["get", "class"], "river"],
+        ["!=", ["get", "brunnel"], "tunnel"]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#4a90e2",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          4, 1,
+          6, 1.8,
+          8, 2.7,
+          10, 3.8,
+          12, 5
+        ]
+      }
+    },
+
+    {
+      "id": "landcover_wood",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "landcover",
+      "filter": ["==", ["get", "class"], "wood"],
+      "paint": { "fill-color": "rgba(186,214,186,0.45)" }
+    },
+
+    {
+      "id": "landcover_grass",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "landcover",
+      "filter": ["==", ["get", "class"], "grass"],
+      "paint": { "fill-color": "rgba(196,220,190,0.35)" }
+    },
+
+    {
+      "id": "landcover_ice",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "landcover",
+      "filter": ["==", ["get", "class"], "ice"],
+      "paint": { "fill-color": "rgba(235,242,245,0.9)" }
+    },
+
+    {
+      "id": "landcover_sand",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "landcover",
+      "filter": ["==", ["get", "class"], "sand"],
+      "paint": { "fill-color": "rgba(245,236,200,0.9)" }
+    },
+
+    {
+      "id": "roads_muted",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "filter": [
+        "match",
+        ["get", "class"],
+        ["motorway", "trunk", "primary", "secondary", "tertiary", "minor"],
+        true,
+        false
+      ],
+      "paint": {
+        "line-color": "hsl(35,6%,72%)",
+        "line-opacity": 0.28,
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          6, 0.5,
+          10, 1.4,
+          14, 2.8
+        ]
+      }
+    },
+
+    {
+      "id": "boundary_state",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "boundary",
+      "filter": [
+        "all",
+        ["!=", ["get", "maritime"], 1],
+        ["==", ["get", "admin_level"], 4]
+      ],
+      "paint": {
+        "line-color": "rgba(200,40,40,1)",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          3, 1.6,
+          5, 2.2,
+          7, 2.8,
+          9, 3.2
+        ]
+      }
+    },
+
+    {
+      "id": "boundary_country",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "boundary",
+      "filter": [
+        "all",
+        ["!=", ["get", "maritime"], 1],
+        ["==", ["get", "admin_level"], 2]
+      ],
+      "paint": {
+        "line-color": "rgba(70,70,70,0.95)",
+        "line-width": 3
+      }
+    },
+
+    {
+      "id": "place_labels",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "place",
+      "filter": [
+        "match",
+        ["get", "class"],
+        ["city", "town", "village", "state", "country"],
+        true,
+        false
+      ],
+      "layout": {
+        "text-field": ["coalesce", ["get", "name_en"], ["get", "name"]],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          4, 10,
+          10, 14
+        ]
+      },
+      "paint": {
+        "text-color": "#1f1f1f",
+        "text-halo-color": "rgba(255,255,255,0.9)",
+        "text-halo-width": 1.2
+      }
+    }
+  ],
+
+  "id": "physical_clean_base_with_borders",
+  "metadata": {
+    "maputnik:renderer": "mlgljs"
+  }
+}
